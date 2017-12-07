@@ -16,7 +16,10 @@ module BlacklightOaiProvider
       @set.repository = @controller.repository if @set.respond_to?(:repository=)
       @set.search_builder = @controller.search_builder if @set.respond_to?(:search_builder=)
       @set.fields = @options[:set_fields] if @set.respond_to?(:fields=)
-      @set.filters = @options[:set_filters] if @set.respond_to?(:filters=)
+      if @set.respond_to?(:filters=)
+        @set.filters = @options[:set_filters]
+        @set.filters.concat(@options[:record_filters]) if @options[:copy_record_filters_to_set] == true
+      end
       @limit = @options[:limit].to_i
       @timestamp_field = @options[:timestamp_method] || @options[:timestamp]
       @timestamp_query_field = @options[:timestamp_field] || @options[:timestamp]
@@ -92,6 +95,11 @@ module BlacklightOaiProvider
       # Filter documents
       Array(@options[:record_filters]).each do |f|
         query.append_filter_query(f)
+      end
+      if conditions[:set].blank? and @options[:copy_set_filters_to_record] == true
+        Array(@options[:set_filters]).each do |f|
+          query.append_filter_query(f)
+        end
       end
 
       @controller.repository.search query
