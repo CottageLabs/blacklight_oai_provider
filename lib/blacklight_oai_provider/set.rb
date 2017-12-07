@@ -10,12 +10,19 @@ module BlacklightOaiProvider
       # The Solr fields to map to OAI sets. Must be indexed (optional)
       attr_accessor :fields
 
+      # The solr filter queries to exclude certain set values (optional)
+      attr_accessor :filters
+
       # Return an array of all sets, or nil if sets are not supported
       def all
         return if @fields.nil?
-
         params = { rows: 0, facet: true, 'facet.field' => @fields }
-        response = @repository.search @search_builder.merge(params)
+        query = @search_builder.merge(params).query
+        # Filter set results
+        Array(@filters).each do |f|
+          query.append_filter_query(f)
+        end
+        response = @repository.search query
         sets_from_facets(response.facet_fields) if response.facet_fields
       end
 

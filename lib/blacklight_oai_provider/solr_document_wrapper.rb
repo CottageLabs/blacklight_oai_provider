@@ -16,7 +16,7 @@ module BlacklightOaiProvider
       @set.repository = @controller.repository if @set.respond_to?(:repository=)
       @set.search_builder = @controller.search_builder if @set.respond_to?(:search_builder=)
       @set.fields = @options[:set_fields] if @set.respond_to?(:fields=)
-
+      @set.filters = @options[:set_filters] if @set.respond_to?(:filters=)
       @limit = @options[:limit].to_i
       @timestamp_field = @options[:timestamp_method] || @options[:timestamp]
       @timestamp_query_field = @options[:timestamp_field] || @options[:timestamp]
