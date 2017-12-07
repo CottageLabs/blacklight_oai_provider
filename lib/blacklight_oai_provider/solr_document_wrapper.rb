@@ -89,6 +89,11 @@ module BlacklightOaiProvider
       query.append_filter_query(date_filter(conditions)) if conditions[:from] || conditions[:until]
       query.append_filter_query(@set.from_spec(conditions[:set])) if conditions[:set]
 
+      # Filter documents
+      Array(@options[:record_filters]).each do |f|
+        query.append_filter_query(f)
+      end
+
       @controller.repository.search query
     end
 
