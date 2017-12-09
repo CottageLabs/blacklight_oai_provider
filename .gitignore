@@ -28,3 +28,4 @@ public/sitemap.xml
 # Windows hidden files
 Thumbs.db
 ehthumbs.db
+.idea/
