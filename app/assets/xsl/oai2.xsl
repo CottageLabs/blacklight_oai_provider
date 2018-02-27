@@ -150,9 +150,9 @@ p.intro {
 <xsl:call-template name='xmlstyle' />
 </xsl:template>
 
-<xsl:variable name="identifier" select="substring-before(substring-after(substring-before(substring-after(substring-after(/oai:OAI-PMH/oai:request,'identifier'), '&gt;'),','), '&quot;'), '&quot;')" />
-<xsl:variable name="verb" select="substring-before(substring-after(substring-before(substring-after(substring-after(/oai:OAI-PMH/oai:request,'verb'), '&gt;'),'}'), '&quot;'), '&quot;')" />
-
+<xsl:variable name="verb" select="/oai:OAI-PMH/oai:request/@verb" />
+<xsl:variable name="identifier" select="/oai:OAI-PMH/oai:request/@identifier" />
+<xsl:variable name="metadataPrefix" select="/oai:OAI-PMH/oai:request/@metadataPrefix" />
 
 <xsl:template match="/">
 <html>
@@ -491,6 +491,8 @@ p.intro {
     <td class="value">
       <xsl:value-of select="oai:identifier"/>
       <xsl:text> </xsl:text><a class="link" href="?verb=GetRecord&amp;metadataPrefix=oai_dc&amp;identifier={oai:identifier}">oai_dc</a>
+      <xsl:text> </xsl:text><a class="link" href="?verb=GetRecord&amp;metadataPrefix=mods&amp;identifier={oai:identifier}">MODs</a>
+      <xsl:text> </xsl:text><a class="link" href="?verb=GetRecord&amp;metadataPrefix=uketd_dc&amp;identifier={oai:identifier}">uketd_dc</a>
       <xsl:text> </xsl:text><a class="link" href="?verb=ListMetadataFormats&amp;identifier={oai:identifier}">formats</a>
     </td></tr>
     <tr><td class="key">Datestamp</td>
@@ -551,7 +553,7 @@ p.intro {
 <!-- unknown metadata format -->
 
 <xsl:template match="oai:metadata/*" priority='-100'>
-  <h3>Metadata Format: <xsl:value-of select="../../../../oai:request/@metadataPrefix" /></h3>
+  <h3>Metadata Format: <xsl:value-of select="$metadataPrefix" /></h3>
   <div class="xmlSource">
     <xsl:apply-templates select="." mode='xmlMarkup' />
   </div>
