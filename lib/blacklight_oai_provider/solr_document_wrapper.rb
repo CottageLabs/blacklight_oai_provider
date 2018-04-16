@@ -17,8 +17,8 @@ module BlacklightOaiProvider
       @set.search_builder = @controller.search_builder if @set.respond_to?(:search_builder=)
       @set.fields = @options[:set_fields] if @set.respond_to?(:fields=)
       if @set.respond_to?(:filters=)
-        @set.filters = @options[:set_filters]
-        @set.filters.concat(@options[:record_filters]) if @options[:copy_record_filters_to_set] == true
+        @set.filters = Array.wrap(@options[:set_filters])
+        @set.filters.concat(Array.wrap(@options[:record_filters]))
       end
       @limit = @options[:limit].to_i
       @timestamp_field = @options[:timestamp_method] || @options[:timestamp]
@@ -43,7 +43,6 @@ module BlacklightOaiProvider
 
     def find(selector, options = {})
       return next_set(options[:resumption_token]) if options[:resumption_token]
-
       if :all == selector
         options[:until] = options[:until] + 1.second unless options[:until].nil?
         response = search_repository conditions: options
@@ -52,6 +51,18 @@ module BlacklightOaiProvider
         end
         response.documents
       else
+        # Check if document can be served
+        options[:rows] = 1
+        options[:fq] = ["id:\"#{selector}\""]
+        opts = {
+          rows: 1,
+          fq: ["id:\"#{selector}\""]
+        }
+        opts[:conditions] = { metadata_prefix: options[:metadata_prefix] } unless
+          options.fetch(:metadata_prefix, nil).blank?
+        check_response = search_repository opts
+        return nil unless (check_response.total == 1 and
+          check_response.documents.first.id == selector)
         begin
           response = @controller.fetch(selector).first
           response.documents.first
@@ -93,11 +104,15 @@ module BlacklightOaiProvider
       query.append_filter_query(@set.from_spec(conditions[:set])) if conditions[:set]
 
       # Filter documents
-      Array(@options[:record_filters]).each do |f|
+      Array.wrap(@options[:record_filters]).each do |f|
         query.append_filter_query(f)
       end
-      if conditions[:set].blank? and @options[:copy_set_filters_to_record] == true
-        Array(@options[:set_filters]).each do |f|
+
+      # Add format filters
+      if conditions.fetch(:metadata_prefix, nil) and
+        @options.dig(:format_filters, conditions[:metadata_prefix].to_sym)
+        Array.wrap(@options.dig(:format_filters,
+          conditions[:metadata_prefix].to_sym)).each do |f|
           query.append_filter_query(f)
         end
       end
