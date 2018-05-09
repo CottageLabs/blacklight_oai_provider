@@ -16,7 +16,7 @@ module BlacklightOaiProvider
       # Return an array of all sets, or nil if sets are not supported
       def all
         return if @fields.nil?
-        params = { rows: 0, facet: true, 'facet.field' => @fields }
+        params = { rows: 0, facet: true, 'facet.field' => @fields, 'facet.limit' => '-1', 'facet.sort' => 'count' }
         query = @search_builder.merge(params).query
         # Filter set results
         Array(@filters).each do |f|
