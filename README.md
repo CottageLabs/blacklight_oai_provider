@@ -17,13 +17,13 @@ A Rails 4 application using Blacklight 6.
 
 Add
 
-    gem 'blacklight_oai_provider', git: 'https://github.com/osulibraries/blacklight_oai_provider.git', branch: 'master'
+    gem 'blacklight_oai_provider', git: 'https://github.com/CottageLabs/blacklight_oai_provider.git', branch: 'master'
 
 to your Gemfile and run `bundle install`.
 
 Then run `bundle exec rails generate blacklight_oai_provider` to install the appropriate extensions into your `CatalogController`, `SolrDocument`, and routes.
 
-After runniing the generator, `config/routes.rb` should contain a definition for the `:oai_provider` concern. You may need to add this concern to the route definition for the Blacklight catalog controller. For example:
+After running the generator, `config/routes.rb` should contain a definition for the `:oai_provider` concern. You may need to add this concern to the route definition for the Blacklight catalog controller. For example:
 
     resource :catalog, only: [:index], path: '/catalog', controller: 'catalog' do
       concerns :oai_provider
